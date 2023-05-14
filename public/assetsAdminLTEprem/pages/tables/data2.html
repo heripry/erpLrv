@@ -1,0 +1,2070 @@
+<title>Input Data Sales Order Regular</title>
+ 
+
+<script type="text/javascript">
+$(document).ready(function(){
+
+/************************************Variable Global**************************************************************/
+    var data = [];
+    var dataItem = [];
+/*****************************************************************************************************************/
+
+
+/*****************************************************************************************************************/
+function GUValidStrDiskon(NilaiYangDiDiskon,StrDiskon){ 
+  
+    var temp = StrDiskon.trim();
+
+ 
+  if ( (temp.indexOf('e')== -1) && (temp.indexOf('E')== -1) ) 
+  {
+    if ( (temp.indexOf('%')== -1) && (temp.indexOf('+')== -1) ) 
+    {
+         
+        try 
+        {  
+        var NilaiDiskon  = round(parseFloat(temp), 4);
+            var Result       = true;
+                return {
+                "NilaiDiskon": NilaiDiskon,
+                "Result": Result
+               };
+
+          
+        } 
+        catch (err) 
+        {
+            var NilaiDiskon  = 0;
+                var Result       = false;
+            return {
+                "NilaiDiskon": NilaiDiskon,
+                "Result": Result
+               };
+        }
+     
+      }
+      else if ( (temp.indexOf('%')> -1) && (temp.indexOf('+')== -1) ) 
+    {
+            // format 2 --> '50%' artinya diskon 50%
+      temp = temp.replace('%', '');
+      
+      try 
+      {
+        var Angka        = parseFloat(temp) ;
+          var Result       = true;
+          NilaiDiskon      = round((Angka * NilaiYangDiDiskon / 100), 4);
+          return {
+                "NilaiDiskon": NilaiDiskon,
+                "Result": Result
+               };
+      } 
+      catch (err) 
+      {
+              var NilaiDiskon  = 0;
+                  var Result       = false;
+                  return {
+                    "NilaiDiskon": NilaiDiskon,
+                    "Result": Result
+                   }; 
+      }
+      
+      if (Result==true && Angka > 99) 
+      {
+        var NilaiDiskon  = 0;
+          var Result       = false;
+        //ini memang di remak
+        // echo json_encode(array('NilaiDiskon'=>$NilaiDiskon, 'Result'=>$Result));
+      }
+
+
+    }
+    else if ( (temp.indexOf('%')== -1) && (temp.indexOf('+')> -1) ) 
+    {
+        // format 3 --> Diskon bertingkat '2+3+5'  2%+3%+5%
+        var Diskon = 1;
+        var Result = true;
+
+        while ((Result==true) && (temp != '')) 
+        {
+            if ((temp.indexOf('+') > -1)) 
+            {
+              
+                    var Awal = temp.substring(0,temp.indexOf('+'));
+                var Sisa = temp.substring(temp.indexOf('+')+1,temp.length);
+            }
+            else
+            {
+               var Awal = temp.trim();
+               var Sisa = '';
+            }
+            
+            try 
+            {
+                Angka  = parseFloat(Awal);
+                Diskon = round((Diskon * (100 - Angka) / 100), 4);
+
+                } 
+                catch (err) 
+                {
+              NilaiDiskon  = 0;
+                  Result       = false;
+                  return {
+                    "NilaiDiskon": NilaiDiskon,
+                    "Result": Result
+                   };
+          }
+
+          if ((Result==true) && (Angka > 99)) 
+            {
+                var NilaiDiskon  = 0;
+                var Result       = false;
+                return {
+                    "NilaiDiskon": NilaiDiskon,
+                    "Result": Result
+                   };
+            }
+            
+             temp = Sisa;
+        } //tutupnya while
+
+
+        if (Result==true)
+        {
+            var NilaiSetelahDiskon = NilaiYangDiDiskon * Diskon;
+            var NilaiDiskon        = NilaiYangDiDiskon - NilaiSetelahDiskon;
+            return {
+                "NilaiDiskon": NilaiDiskon,
+                "Result": Result
+               };
+        }
+        else
+        { 
+         var Result = false;
+       return {
+             "Result": Result
+            };
+        }
+
+    }
+    else
+    { 
+      var Result = false; 
+        return {
+          "Result": Result
+           };
+    }
+
+  }
+  
+}  
+/*****************************************************************************************************************/
+   function fCusNewShow(){
+       $('#txtCustomerIDx').hide();
+       $('#txtAddress').hide();
+       $('#txtProvincex').hide();
+       $('#txtCityx').hide();
+       $('#txtPhonex').hide();
+       $('#txtPosCodex').hide();
+       $('#txtNoKTPx').hide();
+       $('#txtNoNPWPx').hide();
+       $('#txtDiscountx').hide();
+       $('#txtPaymentTypex').hide();
+       $('#txtTermx').hide();
+             
+         $('#txtCustomerNameNewx').show();
+       $('#txtAddressNew').show();
+       $('#txtProvinceNewx').show();
+       $('#txtCityNewx').show();
+       $('#txtPhoneNewx').show();
+       $('#txtPosCodeNewx').show();
+       $('#txtNoKTPNewx').show();
+       $('#txtNoNPWPNewx').show();
+       $('#txtDiscountNewx').show();
+       $('#txtPaymentTypeNewx').show();
+       $('#txtTermNewx').show();
+        }
+
+   function fCusOldShow(){
+         $('#txtCustomerIDx').show();
+       $('#txtAddress').show();
+       $('#txtProvincex').show();
+       $('#txtCityx').show();
+       $('#txtPhonex').show();
+       $('#txtPosCodex').show();
+       $('#txtNoKTPx').show();
+       $('#txtNoNPWPx').show();
+       $('#txtDiscountx').show();
+       $('#txtPaymentTypex').show();
+       $('#txtTermx').show();
+             
+         $('#txtCustomerNameNewx').hide();
+       $('#txtAddressNew').hide();
+       $('#txtProvinceNewx').hide();
+       $('#txtCityNewx').hide();
+       $('#txtPhoneNewx').hide();
+       $('#txtPosCodeNewx').hide();
+       $('#txtNoKTPNewx').hide();
+       $('#txtNoNPWPNewx').hide();
+       $('#txtDiscountNewx').hide();
+       $('#txtPaymentTypeNewx').hide();
+       $('#txtTermNewx').hide();
+        }
+
+
+   function fWarehouseNewShow(){
+             $('#txtWarehouseIDx').hide();
+       $('#txtWarehouseAddress').hide();
+       $('#txtWarehouseProvincex').hide();
+       $('#txtWarehouseCityx').hide();
+       $('#txtWarehousePhonex').hide();
+       $('#txtWarehousePosCodex').hide();
+
+             $('#btnCopyAddressx').show();
+       $('#txtWarehouseAddressNew').show();
+       $('#txtWarehouseProvinceNewx').show();
+       $('#txtWarehouseCityNewx').show();
+       $('#txtWarehousePhoneNewx').show();
+       $('#txtWarehousePosCodeNewx').show();  
+      }
+
+   function fWarehouseOldShow(){
+         $('#txtWarehouseIDx').show();
+       $('#txtWarehouseAddress').show();
+       $('#txtWarehouseProvincex').show();
+       $('#txtWarehouseCityx').show();
+       $('#txtWarehousePhonex').show();
+       $('#txtWarehousePosCodex').show();
+             
+             $('#btnCopyAddressx').hide(); 
+       $('#txtWarehouseAddressNew').hide();
+       $('#txtWarehouseProvinceNewx').hide();
+       $('#txtWarehouseCityNewx').hide();
+       $('#txtWarehousePhoneNewx').hide();
+       $('#txtWarehousePosCodeNewx').hide();  
+      }
+/***********************************************************************************************************/
+   //function buat memberikan titik pada nilai ribuan 
+   var myintval = function ( i ) {
+            return  i.toFixed(0).replace(/./g, function(c, i, a) {
+                return i && c !== "." && ((a.length - i) % 3 === 0) ? '.' + c : c;
+              });
+          }; 
+  
+    //function buat rounded desimal ex round(1.005, 2); // hasil 1.01
+   function round(value, decimals) {
+         return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
+      } 
+
+     //function buat rounded ratusan ex round(567.35); // hasil 600
+     function roundUporDownToHundred(v){
+     return (Math.round(v/100)*100);
+   }   
+/***********************************************************************************************************/ 
+         //function untuk format angka ribuaan koma dan desimal titik ini 4 digit desimal dengan jquery number  
+       //function ini berfungsi ketika textbonya on change numeric 
+        $(function(){
+        // Set up the number formatting.
+        $('#txtPrice').number( true, 4 );
+        $('#txtSubTotal').number( true, 4 );
+        $('#txtQty').number( true, 0 );
+        }); 
+/***********************************************************************************************************/
+ // fungsi ini saat page on load
+  $( window ).on( "load", function() {
+         //Default CusOld, WarehouseOld
+           fCusOldShow();
+           fWarehouseOldShow();
+       
+       $('#OnFaktur').show();
+       $('#OnFaktur').val('true');
+       $('#OffFaktur').hide();
+       $('#OffFaktur').val('false');
+
+       $('#txtTerm').prop('disabled', true);
+       $('#txtTermNew').prop('disabled', true);
+             $('#fotoKTPSudahUploadx').hide();
+       $('#fotoNPWPSudahUploadx').hide();
+
+       ambilJneCityID();
+       cekCanSale();
+
+       var ipinfo;
+           $.getJSON("http://ipinfo.io", function (data) {
+              $("#txtUserIP").html(data.ip)
+           })
+
+  });
+   
+
+// fungsi ini saat Checked Cusold dicentang atau tidak
+    $('input[id="cusnew"]').on("change", function () {
+         if ($(this).prop("checked")) {
+       //CusNew, WarehouseNew
+        fCusNewShow();
+            fWarehouseNewShow(); 
+            cekPaymentType(); 
+
+       $('#warehousenew').prop('checked', true).checkboxradio("refresh");
+       $('#warehousenew').prop('disabled', true); 
+             
+             $("#fotoKTPx").show();
+             $("#fotoNPWPx").show();
+             $('#fotoKTPSudahUploadx').hide();
+       $('#fotoNPWPSudahUploadx').hide(); 
+       $("#fotoKTP").val('');
+       $("#fotoNPWP").val('');
+ 
+     }else {
+      //CusOld, WarehouseOld
+            fCusOldShow();
+            fWarehouseOldShow();
+       
+       $('#warehousenew').prop('checked', false).checkboxradio("refresh");
+       $('#warehousenew').prop('disabled', false);
+             
+             $("#fotoKTP").val('');
+       $("#fotoNPWP").val('');
+
+                if ($('#lblIDNumberIMG').html() != 1){
+                    $("#fotoKTPx").show();
+                    $('#fotoKTPSudahUploadx').hide();
+         }else{
+                    $("#fotoKTPx").hide();
+                    $('#fotoKTPSudahUploadx').show();
+        }
+           
+      
+        if ($('#lblTaxNumberIMG').html() != 1){
+                    $("#fotoNPWPx").show();
+                    $('#fotoNPWPSudahUploadx').hide();
+         }else{
+                    $("#fotoNPWPx").hide();
+                    $('#fotoNPWPSudahUploadx').show();
+        }
+
+     }
+       });
+     
+
+
+   $('input[id="warehousenew"]').on("change", function () {
+        if ($(this).prop("checked")) {
+           //WarehouseNew
+            kosongiShipToNew(); //untuk mengosongi textbox bagian shipto New
+            fWarehouseNewShow();
+            cekbtnCopyAddress();
+    
+    }else{
+       //WarehouseOld
+       kosongiShipToOld(); //untuk mengosongi textbox bagian shipto Old
+       fWarehouseOldShow();
+       cekbtnCopyAddress();
+      }  
+     });
+
+
+//untuk membuat alamat terisi otomatis dari combo customer yang dipilih
+    $("#txtCustomerID").on("change", function(){
+      var CustomerID = $("#txtCustomerID").val();
+     
+    $.ajax({
+          type: "POST",
+      data: "CustomerID="+CustomerID,
+          url: "<?php echo base_url('index.php/admin/c_SOregular/paramCus')?>",
+      dataType: 'JSON',
+          success: function(res) {
+            if (res.WarningNotes == '' || res.WarningNotes == null) { 
+              //tak muncul alert
+            }else{
+              alert(res.WarningNotes);  
+            }
+        $("#txtCustomerName").val(res.Name);
+        $("#txtAddress").val(res.Address);
+      $("#txtProvince").val(res.Province);
+      $("#txtCity").val(res.City);
+      $("#txtPhone").val(res.Phone1);
+      $("#txtPosCode").val(res.PosCode);
+      $("#txtNoKTP").val(res.IDNumber);
+      $("#txtNoNPWP").val(res.TaxNumber);
+      $("#lblIDNumberIMG").html(res.IDNumberIMG);
+      $("#lblTaxNumberIMG").html(res.TaxNumberIMG); 
+  /**********************************Text KTP & NPWP*******************************************/  
+        if (res.IDNumber == null || res.IDNumber == ''){
+                    $('#txtNoKTP').prop('disabled', false);
+         }else{
+                  //  $('#txtNoKTP').prop('disabled', true);
+        }
+           
+      
+        if (res.TaxNumber == null || res.TaxNumber == ''){
+                    $('#txtNoNPWP').prop('disabled', false);
+         }else{
+                  //  $('#txtNoNPWP').prop('disabled', true);
+        }       
+    /**********************************Foto KTP & NPWP*******************************************/  
+        if (res.IDNumberIMG!=1){
+                    $("#fotoKTPx").show();
+                    $('#fotoKTPSudahUploadx').hide();
+         }else{
+                    $("#fotoKTPx").hide();
+                    $('#fotoKTPSudahUploadx').show();
+        }
+           
+      
+        if (res.TaxNumberIMG!=1){
+                    $("#fotoNPWPx").show();
+                    $('#fotoNPWPSudahUploadx').hide();
+         }else{
+                    $("#fotoNPWPx").hide();
+                    $('#fotoNPWPSudahUploadx').show();
+        }  
+    /************************************PaymentType*********************************************/  
+                 var isiPaymentType ='';
+                 var myobject = []; 
+        if (res.PaymentType==0){
+                    isiPaymentType ='CBD';
+                    myobject = {/*1:'COD',*/ 2:'TOP'};
+                   $('#txtTerm').prop('disabled', true); 
+        }else if (res.PaymentType==1){
+                    isiPaymentType ='COD';
+                    myobject = {0:'CBD', 2:'TOP'};
+                   $('#txtTerm').prop('disabled', true);
+        }else if (res.PaymentType==2){
+                    isiPaymentType ='TOP';
+                    myobject = {0:'CBD' /*,1:'COD'*/};
+                   $('#txtTerm').prop('disabled', false);
+         }
+
+                //ini parameter awal PaymentType nya apa
+                $("#lblPaymentTypec").html(res.PaymentType);
+              
+              
+              $('#txtPaymentType').html('<option value="' + res.PaymentType + '" selected>' + isiPaymentType + '</option>');
+              $('#txtPaymentType').val(res.PaymentType).selectmenu('refresh',true);
+          
+            var select = document.getElementById("txtPaymentType");
+          for(index in myobject) {
+              select.options[select.options.length] = new Option(myobject[index], index);
+          }
+                
+  /************************************Term*********************************************/   
+            $("#txtTerm").val(res.Term);
+    /************************************************************************************/  
+         
+    /**********************************Discount*******************************************/ 
+        if (res.DiscountType==0){
+                    $("#txtDiscount").val('ON Faktur');
+         }else if (res.DiscountType==1){
+                    $("#txtDiscount").val('OFF Faktur');
+        } 
+    /************************************************************************************/  
+
+      //------atribut tambahan dari mCustomer tidak usah ditampilkan pada textbox------//
+      $("#lblCustomerCode").html(res.Code);
+      $("#lblTaxNumber").html(res.TaxNumber);
+      $("#lblUp").html(res.UP);
+          //------------
+       filterWarehouse(); //nama function untuk filterWarehouse
+             cekDiscount();
+             kosongiShipToOld(); //untuk mengosongi textbox bagian shipto Old
+             ambilItemID(CustomerID);   
+           
+            $('#lblShipCity').html('');
+            $('#lblOngkir').html('');
+            $('#txtOngkir').val('');
+            $('#txtItemID').val(0).selectmenu('refresh',true);  
+          }
+        });
+      });
+//batas
+
+      $("#cusnew").on("click", function(){
+        $('#lblShipCity').html('');
+          $('#lblOngkir').html('');
+          $('#txtOngkir').val('');
+          $('#txtItemID').val(0).selectmenu('refresh',true);  
+      });
+
+       
+       $("#txtCustomerNameNew").on("change", function(){
+            var CustomerID = '';
+            ambilItemID(CustomerID);
+       });  
+       
+                  function cekCanSale(){
+           var userID = $("#txtSalesID").val();
+           
+            $.ajax({
+            type: "POST",
+            data: "userID="+userID,
+            url: "<?php echo base_url('index.php/admin/c_SOregular/paramCanSale')?>",
+            dataType: 'JSON',
+            success: function(res) {    
+              $("#lblCanSale").html(res.CanSale);     
+        
+            }
+          });
+          }
+            
+            function cekbtnCopyAddress(){
+              if ($("#cusnew").prop('checked') == true){
+                    //cusNew
+                     $('#btnCopyAddressx').show(); 
+              }else{
+                //cusOld
+                     $('#btnCopyAddressx').hide(); 
+              }
+
+                $('#lblShipCity').html('');
+                  $('#lblOngkir').html('');
+                  $('#txtOngkir').val(''); 
+                  $('#txtItemID').val(0).selectmenu('refresh',true);  
+              }
+
+                 function cekPaymentType(){
+
+              if ($("#txtPaymentTypeNew").val()==0){
+              $('#txtTermNew').val(0);
+            }else if ($("#txtPaymentTypeNew").val()==1){
+                $('#txtTermNew').val(0);
+            }else if ($("#txtPaymentTypeNew").val()==2){
+              $('#txtTermNew').val(30);
+            }  
+          
+            }
+
+
+         function filterWarehouse(){
+           var CustomerID = $("#txtCustomerID").val();
+           
+            $.ajax({
+            type: "POST",
+            data: "CustomerID="+CustomerID,
+            url: "<?php echo base_url('index.php/admin/c_SOregular/paramShipTo')?>",
+            success: function(res) {    
+             $("#txtWarehouseID").html(res);      
+             
+            }
+          });
+          }
+
+        function cekDiscount(){ 
+               if ($("#txtDiscount").val()=='ON Faktur'){
+              $('#OnFaktur').show();
+              $('#OnFaktur').val('true');
+              $('#OffFaktur').hide();
+              $('#OffFaktur').val('false');
+          
+            }else if ($("#txtDiscount").val()=='OFF Faktur') {
+                $('#OnFaktur').hide();
+                $('#OnFaktur').val('false');
+              $('#OffFaktur').show();
+              $('#OffFaktur').val('true');
+              
+            } 
+         }  
+              
+               function kosongiShipToNew(){             
+                $('#txtWarehouseAddressNew').val('');
+              
+              $('#txtWarehouseProvinceNew').attr('<option value=0 selected>-Pilih-</option>');
+                $('#txtWarehouseProvinceNew').val(0).selectmenu('refresh',true);
+                $('#txtWarehouseCityNew').attr('<option value=0 selected>-Pilih-</option>');
+                $('#txtWarehouseCityNew').val(0).selectmenu('refresh',true);
+      
+              $('#txtWarehousePhoneNew').val('');
+              $('#txtWarehousePosCodeNew').val('');
+          } 
+
+        function kosongiShipToOld(){
+                          $('#txtWarehouseID').attr('<option value=0 selected>-Pilih-</option>');
+                $('#txtWarehouseID').val(0).selectmenu('refresh',true);
+                
+                $('#txtWarehouseAddress').val('');
+              $('#txtWarehouseProvince').val('');
+              $('#txtWarehouseCity').val(''); 
+              $('#txtWarehousePhone').val('');
+              $('#txtWarehousePosCode').val('');
+         } 
+                 
+                function ambilJneCityID(){
+                    if ($("#warehousenew").prop('checked') == true) {
+                         var City = $("#txtWarehouseCityNew").val();
+                       }else if ($("#warehousenew").prop('checked') == false) {
+                         var City = $("#txtWarehouseCity").val();
+                      } 
+         
+             $.ajax({
+                  type: "POST",
+                  data: "City="+City,
+                  dataType: 'JSON',
+                  url: "<?php echo base_url('index.php/admin/c_SOregular/paramAmbilJneCityID')?>",
+              success: function(res) {
+                $("#txtFreeDeliveryCost").val(res.FreeDeliveryCost);
+                $("#txtOngkir").val(res.ValueJNE);
+                $("#lblOngkir").html(myintval(round(res.ValueJNE,0)));  
+              }
+                 });
+          }  
+                
+                function ambilItemID(CustomerID){ 
+              dataItem.length = 0; //untuk mengkosongi array dataItem ketika kembali load selectbox customer
+                var options = '';  
+               
+                $('#txtItemID').html('<option value="0" selected>-Pilih-</option>');
+                  
+      
+                    $.ajax({
+                      type: "POST",
+                  data: "CustomerID="+CustomerID,
+                    url: "<?php echo base_url('index.php/admin/c_SOregular/paramItemS')?>",
+                dataType: 'JSON',
+                    success: function(res) {  
+                      for (var a = 0; a < res.length; a++){
+                          
+                         dataItem.push({
+                          ID: res[a].ID,
+                            Name: res[a].Name,
+                      Price: res[a].Price,
+                      ShippingWeight: res[a].ShippingWeight,
+                      QtyMin: res[a].QtyMin,
+                        Unit: res[a].Unit,
+                        DiscountRegular: res[a].DiscountRegular,  
+                   });
+                                      
+                            options += '<option value="' + dataItem[a].ID + '">'+ dataItem[a].Name + '</option>';  
+                      }
+                          $('#txtItemID').append(options);
+                          $('#txtItemID').val(0).selectmenu('refresh',true);  
+
+                   }
+                    });
+                } 
+
+//untuk membuat price,xx,xx terisi otomatis dari combo item yang dipilih    
+ $("#txtItemID").on("change", function(){
+    if ($("#txtOngkir").val() == '' ) {
+        alert('Tunggu Harga Ongkir Muncul / Pastikan Alamat Kirim Sudah di Isi dg Benar');
+         $('#txtItemID').val(0).selectmenu('refresh',true);  
+     $('#txtItemID').focus();
+    }else{
+    
+    $('#Submit_Detail').prop('disabled', true);
+
+         for(var j = 0; j < dataItem.length; j++) {
+        if(dataItem[j].ID == $('#txtItemID').val()) {
+           
+              $("#txtItemName").val(dataItem[j].Name);
+          $("#txtPrice").val(dataItem[j].Price);
+          $("#txtShippingWeight").val(dataItem[j].ShippingWeight);
+          $("#txtQty").val(dataItem[j].QtyMin);
+            $("#txtUnit").val(dataItem[j].Unit);
+          $("#txtSubTotal").val(dataItem[j].Price);
+           //------atribut tambahan dari mItem tidak usah ditampilkan pada textbox------//
+          $("#lblDiscountRegular").html(dataItem[j].DiscountRegular);
+          $("#lblItemID").html(dataItem[j].ID);
+          $("#lblQty").html(dataItem[j].QtyMin);
+             //-----/
+                
+              if (dataItem[j].ShippingWeight == null || dataItem[j].ShippingWeight == '') {
+                alert('Item Ini Belum Ada Beratnya..!');
+                $('#txtItemID').val(0).selectmenu('refresh',true);
+                $('#txtQty').val(0);
+              }
+            
+         }
+      }
+        
+        $('#Submit_Detail').prop('disabled', false);
+    
+    } // tutupnya if   
+ });
+//batas 
+
+//untuk     
+//**********************************************************************//  
+     $("#txtProvinceNew").on("change", function(){
+        var Province = $("#txtProvinceNew").val();
+         
+      $.ajax({
+          type: "POST",
+          data: "Province="+Province,
+          url: "<?php echo base_url('index.php/admin/c_SOregular/paramBillnShipCity')?>",
+      success: function(res) {    
+       $("#txtCityNew").html(res);      
+      }
+        });
+     });
+    
+    $("#txtWarehouseProvinceNew").on("change", function(){
+        var Province = $("#txtWarehouseProvinceNew").val();
+         
+      $.ajax({
+          type: "POST",
+          data: "Province="+Province,
+          url: "<?php echo base_url('index.php/admin/c_SOregular/paramBillnShipCity')?>",
+      success: function(res) {    
+       $("#txtWarehouseCityNew").html(res);   
+      }
+        });
+     });
+   
+
+  $("#txtWarehouseCityNew").on("change", function(){   
+          ambilJneCityID();
+          $('#lblShipCity').html($("#txtWarehouseCityNew").val());
+    });
+   
+     $("#txtWarehouseID").on("change", function(){
+         var ID = $("#txtWarehouseID").val();
+         
+      $.ajax({
+          type: "POST",
+          data: "ID="+ID,
+          url: "<?php echo base_url('index.php/admin/c_SOregular/paramShipToDet')?>",
+      dataType: 'JSON',
+      success: function(res) {
+        $("#txtWarehouseName").val(res.Name); 
+        $("#txtWarehouseAddress").val(res.Address);
+        $("#txtWarehouseProvince").val(res.Province);
+        $("#txtWarehouseCity").val(res.City);
+      $("#txtWarehousePhone").val(res.Phone);
+      $("#txtWarehousePosCode").val(res.PosCode); //di tabel mcuscontact baru buat field poscode
+            
+            $('#lblShipCity').html(res.City);
+      
+      ambilJneCityID();
+
+      }
+        });
+     });
+//*********************************************************************************//  
+//batas 
+
+   $("#btnCopyAddress").on("click", function(){
+         $('#txtWarehouseProvinceNew').attr('<option value="' + $('#txtProvinceNew').val() + '" selected>' + $('#txtProvinceNew').val() + '</option>');
+           $('#txtWarehouseProvinceNew').val($('#txtProvinceNew').val()).selectmenu('refresh',true);
+         
+           $('#txtWarehouseCityNew').html('<option value="' + $('#txtCityNew').val() + '" selected>' + $('#txtCityNew').val() + '</option>');
+           $('#txtWarehouseCityNew').val($('#txtCityNew').val()).selectmenu('refresh',true);
+           $('#lblShipCity').html($('#txtCityNew').val());
+
+           $('#txtWarehouseAddressNew').val($('#txtAddressNew').val());
+           $('#txtWarehousePhoneNew').val($('#txtPhoneNew').val());
+           $('#txtWarehousePosCodeNew').val($('#txtPosCodeNew').val());
+
+           ambilJneCityID();
+
+    });
+
+   $("#txtSalesID").on("change", function(){
+      cekCanSale();
+    });
+
+   $("#txtPaymentTypeNew").on("change", function(){
+      if ($("#txtPaymentTypeNew").val()==0){
+      $('#txtTermNew').val(0);
+      $('#txtTermNew').prop('disabled', true);
+    }else if ($("#txtPaymentTypeNew").val()==1){
+        $('#txtTermNew').val(0);
+        $('#txtTermNew').prop('disabled', true);
+    }else if ($("#txtPaymentTypeNew").val()==2){
+      $('#txtTermNew').val(30); 
+      $('#txtTermNew').prop('disabled', false); 
+    }  
+       
+    });
+
+
+   $("#txtTermNew").on("input", function(){
+      if ($("#txtTermNew").val()>=31){
+          alert('Term Tidak Boleh Melebihi 30');
+           document.getElementById("txtTermNew").value = '30';
+           $('#txtTermNew').focus();
+        }       
+    });
+
+   $("#txtPaymentType").on("change", function(){
+      if ($("#cusnew").prop('checked') == false && $('#lblPaymentTypec').html()==0 && $('#txtPaymentType').val()!= 0) {
+       alert('Maaf Jika PaymentType Sudah CBD Tidak Bisa di Ganti ke TOP/COD, Harus CBD'); 
+      $('#txtPaymentType').val(0).selectmenu('refresh',true);  
+      $('#txtPaymentType').focus();
+        }else if ($("#txtPaymentType").val()==0){
+      $('#txtTerm').val(0);
+      $('#txtTerm').prop('disabled', true); 
+    }else if ($("#txtPaymentType").val()==1){
+        $('#txtTerm').val(0);
+        $('#txtTerm').prop('disabled', true); 
+    }else if ($("#txtPaymentType").val()==2){
+      $('#txtTerm').val(30);
+      $('#txtTerm').prop('disabled', false);  
+    }  
+       
+    });
+
+
+   $("#txtTerm").on("input", function(){
+      if ($("#txtTerm").val()>=31){
+          alert('Term Tidak Boleh Melebihi 30');
+           document.getElementById("txtTerm").value = '30';
+           $('#txtTerm').focus();
+        }       
+    });
+
+
+  $("#txtDiscountNew").on("change", function(){
+       if ($("#txtDiscountNew").val()=='0'){
+      $('#OnFaktur').show();
+      $('#OnFaktur').val('true');
+      $('#OffFaktur').hide();
+      $('#OffFaktur').val('false');
+    }else{
+        $('#OnFaktur').hide();
+        $('#OnFaktur').val('false');
+        $('#OffFaktur').show();
+        $('#OffFaktur').val('true');
+    } 
+    });
+  
+   $("#txtQty").on("change", function(){
+     var a = parseFloat($("#txtQty").val());
+       var b = parseFloat($("#txtPrice").val());
+       c = a * b;
+       parseFloat($("#txtSubTotal").val(c));
+       
+  });
+  
+  $("#txtQty").on("input", function(){
+     var a = parseFloat($("#txtQty").val());
+       var b = parseFloat($("#txtPrice").val());
+       c = a * b;
+       parseFloat($("#txtSubTotal").val(c));
+       
+  });
+  
+  function simpan_foto_KTP(){
+             
+              var customerID = $('#txtCustomerID').val();
+              var customerName = $('#txtCustomerName').val();
+              var noKTP = $('#txtNoKTP').val();
+              var file_data = $('#fotoKTP').prop('files')[0];
+              var form_data = new FormData();
+                
+              form_data.append('file', file_data);
+     
+              $.ajax({ 
+                  url: '<?php echo site_url('admin/c_SOregular/aksi_upload_ktp?customerID=')?>'+customerID+'<?php echo '&customerName='?>'+customerName+'<?php echo '&noKTP='?>'+noKTP, // point to server-side PHP script
+                  dataType: 'json',  // what to expect back from the PHP script, if anything
+                  cache: false,
+                  contentType: false,
+                  processData: false,
+                  data: form_data,
+                  type: 'post',
+                  success: function(data,status){
+                  
+                  }
+              });
+    }
+
+    function simpan_foto_NPWP(){
+             
+              var customerID = $('#txtCustomerID').val();
+              var customerName = $('#txtCustomerName').val();
+              var noNPWP = $('#txtNoNPWP').val();
+              var file_data = $('#fotoNPWP').prop('files')[0];
+              var form_data = new FormData();
+                
+              form_data.append('file', file_data);
+     
+              $.ajax({ 
+                  url: '<?php echo site_url('admin/c_SOregular/aksi_upload_npwp?customerID=')?>'+customerID+'<?php echo '&customerName='?>'+customerName+'<?php echo '&noNPWP='?>'+noNPWP, // point to server-side PHP script
+                  dataType: 'json',  // what to expect back from the PHP script, if anything
+                  cache: false,
+                  contentType: false,
+                  processData: false,
+                  data: form_data,
+                  type: 'post',
+                  success: function(data,status){
+                  
+                  }
+              });
+    } 
+
+    function simpan_foto_KTP_cusNew(){
+             
+              var customerName = $('#txtCustomerNameNew').val();
+              var file_data = $('#fotoKTP').prop('files')[0];
+              var form_data = new FormData();
+                
+              form_data.append('file', file_data);
+     
+              $.ajax({ 
+                  url: '<?php echo site_url('admin/c_SOregular/aksi_upload_ktp_cusnew?customerName=')?>'+customerName, // point to server-side PHP script
+                  dataType: 'json',  // what to expect back from the PHP script, if anything
+                  cache: false,
+                  contentType: false,
+                  processData: false,
+                  data: form_data,
+                  type: 'post',
+                  success: function(data,status){
+                  
+                  }
+              });
+    }
+
+    function simpan_foto_NPWP_cusNew(){
+             
+              var customerName = $('#txtCustomerNameNew').val();
+              var file_data = $('#fotoNPWP').prop('files')[0];
+              var form_data = new FormData();
+                
+              form_data.append('file', file_data);
+     
+              $.ajax({ 
+                  url: '<?php echo site_url('admin/c_SOregular/aksi_upload_npwp_cusnew?customerName=')?>'+customerName, // point to server-side PHP script
+                  dataType: 'json',  // what to expect back from the PHP script, if anything
+                  cache: false,
+                  contentType: false,
+                  processData: false,
+                  data: form_data,
+                  type: 'post',
+                  success: function(data,status){
+                  
+                  }
+              });
+    } 
+
+
+  /*membuat text berisi tanggal*/
+/*    $(function(){
+      $( ".date-input-css" ).datepicker({
+          dateFormat:'dd/mm/yy'
+        });
+      });
+   /*batas*/  
+
+
+  $('#example').dataTable({
+      "iDisplayLength": 200,
+      "aLengthMenu": [[100, 200, 500, -1], [100, 200, 500, "All"]],
+      responsive: true,
+           // "dom":'',
+      "scrollX": true,
+      //"aoColumns": [{"bSortable": false}, null], //scriptnya berfungsi ketika scrollX: false
+      "bSort": false,
+      "bFilter" : false,               
+            "bLengthChange": false,
+      "bInfo" : false,
+      "bPaginate": false
+    } );
+  
+      
+ $("#Simpan").click(function(){
+      //if cektexbox apakah kosong 
+    if ($("#cusnew").prop('checked') == true && $("#warehousenew").prop('checked') == true) {   
+              if ($('#txtCustomerNameNew').val() == '') {alert('Nama Harus Diisi'); $('#txtCustomerNameNew').focus();}
+        else if ($('#txtAddressNew').val() == '') {alert('Alamat Harus Diisi'); $('#txtAddressNew').focus();}
+        else if ($('#txtProvinceNew').val() == 0) {alert('Provinsi Harus Diisi'); $('#txtProvinceNew').focus();}
+        else if ($('#txtCityNew').val() == 0) {alert('City Harus Diisi'); $('#txtCityNew').focus();}
+        else if ($('#txtPhoneNew').val() == '') {alert('Phone Harus Diisi'); $('#txtPhoneNew').focus();}
+       //else if ($('#txtPosCodeNew').val() == '') {alert('PosCode Harus Diisi'); $('#txtPosCodeNew').focus();}  
+          else if ($('#txtWarehouseAddressNew').val()== '') {alert('Warehouse Alamat Harus Diisi'); $('#txtWarehouseAddressNew').focus();}
+        else if ($('#txtWarehouseProvinceNew').val()== 0) {alert('Warehouse Provinsi Harus Diisi'); $('#txtWarehouseProvinceNew').focus();}
+        else if ($('#txtWarehouseCityNew').val()== 0) {alert('Warehouse City Harus Diisi'); $('#txtWarehouseCityNew').focus();}
+        else if ($('#txtWarehousePhoneNew').val()== '') {alert('Warehouse Phone Harus Diisi'); $('#txtWarehousePhoneNew').focus();}
+        //else if ($('#txtWarehousePosCodeNew').val()== '') {alert('Warehouse Pos Code Harus Diisi'); $('#txtWarehousePosCodeNew').focus();}
+        else if ($('#lblDeliveryWeights').html() == NaN || $('#lblDeliveryWeights').html() == '') {alert('lblDeliveryWeights kosong');}
+        else if ($('#lblItemWeightTotals').html() == NaN || $('#lblItemWeightTotals').html() == '') {alert('lblItemWeightTotals kosong');}
+        else if ($('#lblShippings').html() == NaN || $('#lblShippings').html() == '') {alert('lblShippings kosong');}
+        else if ($('#lblShippingTotals').html() == NaN || $('#lblShippingTotals').html() == '') {alert('lblShippingTotals kosong');}
+        else if (data.length == 0) {alert('Item Tidak Boleh kosong'); $('#txtItemID').focus();}
+        else{$('#Simpan').prop('disabled', true); cekMSGSimpan();}
+     }else if($("#cusnew").prop('checked') == false && $("#warehousenew").prop('checked') == true) {
+          if ($('#txtWarehouseAddressNew').val()== '') {alert('Warehouse Alamat Harus Diisi'); $('#txtWarehouseAddressNew').focus();}
+        else if ($('#txtWarehouseProvinceNew').val()== 0) {alert('Warehouse Provinsi Harus Diisi'); $('#txtWarehouseProvinceNew').focus();}
+        else if ($('#txtWarehouseCityNew').val()== 0) {alert('Warehouse City Harus Diisi'); $('#txtWarehouseCityNew').focus();}
+        else if ($('#txtWarehousePhoneNew').val()== '') {alert('Warehouse Phone Harus Diisi'); $('#txtWarehousePhoneNew').focus();}
+        //else if ($('#txtWarehousePosCodeNew').val()== '') {alert('Warehouse Pos Code Harus Diisi'); $('#txtWarehousePosCodeNew').focus();}
+        else if ($('#lblDeliveryWeights').html() == NaN || $('#lblDeliveryWeights').html() == '') {alert('lblDeliveryWeights kosong');}
+        else if ($('#lblItemWeightTotals').html() == NaN || $('#lblItemWeightTotals').html() == '') {alert('lblItemWeightTotals kosong');}
+        else if ($('#lblShippings').html() == NaN || $('#lblShippings').html() == '') {alert('lblShippings kosong');}
+        else if ($('#lblShippingTotals').html() == NaN || $('#lblShippingTotals').html() == '') {alert('lblShippingTotals kosong');}
+        else if (data.length == 0) {alert('Item Tidak Boleh kosong'); $('#txtItemID').focus();}
+        else{$('#Simpan').prop('disabled', true); cekMSGSimpan();}
+         }else if($("#cusnew").prop('checked') == false && $("#warehousenew").prop('checked') == false) {
+           if ($('#txtCustomerID').val()== 0) {alert('Customer Harus Diisi'); $('#txtCustomerID').focus();}
+           else if ($('#txtWarehouseAddress').val()== '') {alert('Warehouse Alamat Harus Diisi'); $('#txtWarehouseAddress').focus();}
+         else if ($('#txtWarehouseProvince').val()== 0) {alert('Warehouse Provinsi Harus Diisi'); $('#txtWarehouseProvince').focus();}
+         else if ($('#txtWarehouseCity').val()== 0) {alert('Warehouse City Harus Diisi'); $('#txtWarehouseCity').focus();}
+         else if ($('#txtWarehousePhone').val()== '') {alert('Warehouse Phone Harus Diisi'); $('#txtWarehousePhone').focus();}
+             //else if ($('#txtWarehousePosCode').val()== '') {alert('Warehouse Pos Code Diisi'); $('#txtWarehousePosCode').focus();}
+         else if ($('#lblDeliveryWeights').html() == NaN || $('#lblDeliveryWeights').html() == '') {alert('lblDeliveryWeights kosong');}
+         else if ($('#lblItemWeightTotals').html() == NaN || $('#lblItemWeightTotals').html() == '') {alert('lblItemWeightTotals kosong');}
+         else if ($('#lblShippings').html() == NaN || $('#lblShippings').html() == '') {alert('lblShippings kosong');}
+         else if ($('#lblShippingTotals').html() == NaN || $('#lblShippingTotals').html() == '') {alert('lblShippingTotals kosong');}
+         else if (data.length == 0) {alert('Item Tidak Boleh kosong'); $('#txtItemID').focus();}
+         else{$('#Simpan').prop('disabled', true); cekMSGSimpan();}
+     }              
+  }); //tutup simpan
+
+
+ function cekMSGSimpan(){
+        var msgbox = confirm("Apakah data yang Anda masukkan sudah benar?");
+        if (msgbox == true) {
+           cekBTNSimpanDisabled();
+       }else {  
+           $('#Simpan').prop('disabled', false);
+        }    
+ }
+
+
+ function cekBTNSimpanDisabled(){
+     if ($("#Simpan").prop('disabled') == true){
+         simpanData();
+      }else{
+       alert('Gagal, Silahkan Tekan Save Lagi');
+       $('#Simpan').prop('disabled', false);
+     }           
+ }
+
+
+  function simpanData(){
+      
+
+                              var freeDelivery = 0;
+                  if ($('#lblDeliveryCost').html() == 0) {
+                         freeDelivery = 1;
+                     }else{
+                         freeDelivery = 0;
+                  } 
+
+                                           
+                                             //berlaku pada cusOld  
+                         var tDiscountType=''; //untuk merefresh nilai kembali kosong 
+                      if ($("#txtDiscount").val()=='On Faktur') {
+                                                tDiscountType=0; 
+                        }else if ($("#txtDiscount").val()=='OFF Faktur') {
+                                                tDiscountType=1;
+                      }     
+
+                         if ($("#cusnew").prop('checked') == true && $("#warehousenew").prop('checked') == true) {
+                                   //cusNew, warehousenew  
+                                      if (document.getElementById("fotoKTP").files.length != 0){
+                                        simpan_foto_KTP_cusNew();
+                                    }    
+                                    
+                                    if (document.getElementById("fotoNPWP").files.length != 0){
+                                          simpan_foto_NPWP_cusNew();
+                                      }    
+
+                             $.ajax({
+                          type: 'POST',
+                          url: '<?php echo base_url('index.php/admin/c_SOregular/tambahdataDetail')?>',
+                            data: {'datanya':data, txtDate: $('#txtDate').val(), txtCustomerID: $('').val(), txtCustomerName: $('#txtCustomerNameNew').val(), txtAddress: $('#txtAddressNew').val(), txtProvince: $('#txtProvinceNew').val(), txtCity: $('#txtCityNew').val(), txtPhone: $('#txtPhoneNew').val(), txtPosCode: $('#txtPosCodeNew').val(), txtNoKTP: $('#txtNoKTPNew').val(), txtNoNPWP: $('#txtNoNPWPNew').val(), txtPaymentType: $('#txtPaymentTypeNew').val(), txtTerm: $('#txtTermNew').val(), txtWarehouseID: $('').val(), txtWarehouseAddress: $('#txtWarehouseAddressNew').val(), txtWarehouseProvince: $('#txtWarehouseProvinceNew').val(), txtWarehouseCity: $('#txtWarehouseCityNew').val(), txtWarehousePhone: $('#txtWarehousePhoneNew').val(), txtWarehousePosCode: $('#txtWarehousePosCodeNew').val(), txtInternalNotes: $('#txtInternalNotes').val(), freeDelivery: freeDelivery, txtDiscountType: $('#txtDiscountNew').val(), lblTotalDetail: $('#lblDPPs').html(), lblTaxTotalDetail: $('#lblDPPs').html(), lblTaxAmount: $('#lblTaxs').html(),  lblInvoiceTotal: $('#lblInvTotals').html(), lblGrandTotal: $('#lblGrandTotals').html(), lblRounded: $('#lblRoundeds').html(), lblOffFakturAmount: $('#lblOffFakturAmounts').html(), lblOffFakturPercent: $('#lblOffFakturPercents').html(), lblShipping: $('#lblShippings').html(), lblShippingTotal: $('#lblShippingTotals').html(), lblDeliveryCost: $('#lblDeliveryCosts').html(), lblDeliveryWeight: $('#lblDeliveryWeights').html(), lblItemWeightTotal: $('#lblItemWeightTotals').html(), txtUserID: $('#txtUserID').val(), txtUserIP: $('#txtUserIP').html(), txtSalesID: $('#txtSalesID').val(), txtOnFaktur: $('#OnFaktur').val()}, 
+                          dataType: 'html',
+                          success: function(sData){
+                            console.log('function success');
+                            $('#result').html(sData);
+                            window.location.replace("<?php echo base_url('index.php/admin/c_SOregular')?>");
+                          },
+                          error:function(e){
+                            console.log('error : '+e.message);
+                          }
+                                      });  
+                                             
+                }else if ($("#cusnew").prop('checked') == false && $("#warehousenew").prop('checked') == true) {    
+                                  //cusOld, warehousenew                                      
+                                        if ($('#lblIDNumberIMG').html() != 1 && document.getElementById("fotoKTP").files.length != 0){
+                                      simpan_foto_KTP();
+                                  }    
+                                      
+                                  if ($('#lblTaxNumberIMG').html() != 1 && document.getElementById("fotoNPWP").files.length != 0){
+                                        simpan_foto_NPWP();
+                                    }    
+
+                           $.ajax({
+                          type: 'POST',
+                          url: '<?php echo base_url('index.php/admin/c_SOregular/tambahdataDetail')?>',
+                          data: {'datanya':data, txtDate: $('#txtDate').val(), txtCustomerID: $('#txtCustomerID').val(), txtCustomerName: $('#txtCustomerName').val(), txtAddress: $('#txtAddress').val(), txtProvince: $('#txtProvince').val(), txtCity: $('#txtCity').val(), txtPhone: $('#txtPhone').val(), txtPosCode: $('#txtPosCode').val(), txtNoKTP: $('#txtNoKTP').val(), txtNoNPWP: $('#txtNoNPWP').val(), txtPaymentType: $('#txtPaymentType').val(), txtTerm: $('#txtTerm').val(), lblCustomerCode: $('#lblCustomerCode').html(), lblTaxNumber: $('#lblTaxNumber').html(), lblTaxNumber: $('#lblTaxNumber').html(), lblUp: $('#lblUp').html(), txtWarehouseID: $('').val(), txtWarehouseAddress: $('#txtWarehouseAddressNew').val(), txtWarehouseProvince: $('#txtWarehouseProvinceNew').val(), txtWarehouseCity: $('#txtWarehouseCityNew').val(),  txtWarehousePhone: $('#txtWarehousePhoneNew').val(), txtWarehousePosCode: $('#txtWarehousePosCodeNew').val(), txtInternalNotes: $('#txtInternalNotes').val(), freeDelivery: freeDelivery, txtDiscountType: tDiscountType, lblTotalDetail: $('#lblDPPs').html(), lblTaxTotalDetail: $('#lblDPPs').html(), lblTaxAmount: $('#lblTaxs').html(),  lblInvoiceTotal: $('#lblInvTotals').html(), lblGrandTotal: $('#lblGrandTotals').html(), lblRounded: $('#lblRoundeds').html(), lblOffFakturAmount: $('#lblOffFakturAmounts').html(), lblOffFakturPercent: $('#lblOffFakturPercents').html(), lblShipping: $('#lblShippings').html(), lblShippingTotal: $('#lblShippingTotals').html(), lblDeliveryCost: $('#lblDeliveryCosts').html(), lblDeliveryWeight: $('#lblDeliveryWeights').html(), lblItemWeightTotal: $('#lblItemWeightTotals').html(), txtUserID: $('#txtUserID').val(), txtUserIP: $('#txtUserIP').html(), txtSalesID: $('#txtSalesID').val(), txtOnFaktur: $('#OnFaktur').val()},
+                          dataType: 'html',
+                          success: function(sData){
+                            console.log(sData);
+                            $('#result').html(sData);
+                          window.location.replace("<?php echo base_url('index.php/admin/c_SOregular')?>");
+                          },
+                          error:function(e){
+                            console.log('error : '+e.message);
+                          }
+                                      });
+                }else if ($("#cusnew").prop('checked') == false && $("#warehousenew").prop('checked') == false) {         
+                                  //cusOld, WarehouseOld
+                                      if ($('#lblIDNumberIMG').html() != 1 && document.getElementById("fotoKTP").files.length != 0){
+                                      simpan_foto_KTP();
+                                  }    
+                                      
+                                    if ($('#lblTaxNumberIMG').html() != 1 && document.getElementById("fotoNPWP").files.length != 0){
+                                         simpan_foto_NPWP();
+                                    }  
+      
+                                             $.ajax({
+                          type: 'POST',
+                          url: '<?php echo base_url('index.php/admin/c_SOregular/tambahdataDetail')?>',
+                          data: {'datanya':data, txtDate: $('#txtDate').val(), txtCustomerID: $('#txtCustomerID').val(), txtCustomerName: $('#txtCustomerName').val(), txtAddress: $('#txtAddress').val(), txtProvince: $('#txtProvince').val(), txtCity: $('#txtCity').val(), txtPhone: $('#txtPhone').val(), txtPosCode: $('#txtPosCode').val(), txtNoKTP: $('#txtNoKTP').val(), txtNoNPWP: $('#txtNoNPWP').val(), txtPaymentType: $('#txtPaymentType').val(), txtTerm: $('#txtTerm').val(), lblCustomerCode: $('#lblCustomerCode').html(), lblTaxNumber: $('#lblTaxNumber').html(), lblTaxNumber: $('#lblTaxNumber').html(), lblUp: $('#lblUp').html(), txtWarehouseID: $('#txtWarehouseID').val(), txtWarehouseAddress: $('#txtWarehouseAddress').val(), txtWarehouseProvince: $('#txtWarehouseProvince').val(), txtWarehouseCity: $('#txtWarehouseCity').val(), txtWarehousePhone: $('#txtWarehousePhone').val(), txtWarehousePosCode: $('#txtWarehousePosCode').val(), txtInternalNotes: $('#txtInternalNotes').val(), freeDelivery: freeDelivery, txtDiscountType: tDiscountType, lblTotalDetail: $('#lblDPPs').html(), lblTaxTotalDetail: $('#lblDPPs').html(), lblTaxAmount: $('#lblTaxs').html(), lblInvoiceTotal: $('#lblInvTotals').html(), lblGrandTotal: $('#lblGrandTotals').html(), lblRounded: $('#lblRoundeds').html(), lblOffFakturAmount: $('#lblOffFakturAmounts').html(), lblOffFakturPercent: $('#lblOffFakturPercents').html(), lblShipping: $('#lblShippings').html(), lblShippingTotal: $('#lblShippingTotals').html(), lblDeliveryCost: $('#lblDeliveryCosts').html(), lblDeliveryWeight: $('#lblDeliveryWeights').html(), lblItemWeightTotal: $('#lblItemWeightTotals').html(), txtUserID: $('#txtUserID').val(), txtUserIP: $('#txtUserIP').html(), txtSalesID: $('#txtSalesID').val(), txtOnFaktur: $('#OnFaktur').val()},
+                          dataType: 'html',
+                          success: function(sData){
+                            console.log(sData);
+                            $('#result').html(sData);
+                          window.location.replace("<?php echo base_url('index.php/admin/c_SOregular')?>");
+                          },
+                          error:function(e){
+                            console.log('error : '+e.message);
+                          }
+                                      });
+                                          
+                  
+                } // tutupnya if ($("#cusnew").prop('checked') == true && $("#warehousenew").prop('checked') == true)
+  
+  } //tutupnya   function simpanData 
+                         
+  
+
+
+
+              $(document).on('click', '#del', function(e){
+           //menghindari <a> agar tidak masuk di halaman baru
+           e.preventDefault();
+         
+           //mendapatkan data.indexOf(..) yang disimpan pada href
+           var index = $(this).attr('href');
+         
+           //untuk remove data yang di pilih
+           data.splice(index,1);
+         
+           //load data yang ditampilkan
+            loadTable(); 
+          });
+               
+ /*
+  $('#zz').click(function(){
+  var NilaiYangDiDiskon=17181.8182;
+  var StrDiskon='10+2.5';
+
+   var hasil = GUValidStrDiskon(NilaiYangDiDiskon,StrDiskon);
+
+   console.log(hasil);
+
+   $('#a').val(hasil['NilaiDiskon']);
+
+ });
+*/
+
+$('#Submit_Detail').click(function(){
+     if ($('#txtItemID').val()==0) {
+          alert('Pilih Item Terlebih Dahulu'); 
+      $('#txtItemID').focus();
+     }else if ($("#txtQty").val()== '' || $("#txtQty").val()== 0){
+          alert('Qty Tidak Boleh Kosong');
+           $('#txtQty').focus();
+     }else if (parseFloat($("#lblQty").html()) > parseFloat($("#txtQty").val())){
+          alert('Minimal Order ' + $("#lblQty").html());
+          $("#txtQty").val($("#lblQty").html());
+   }else{ 
+        //if cektexbox apakah kosong 
+        if ($("#cusnew").prop('checked') == true && $("#warehousenew").prop('checked') == true) {   
+                if ($('#txtCustomerNameNew').val() == '') {alert('Nama Harus Diisi'); $('#txtCustomerNameNew').focus();}
+          else if ($('#txtAddressNew').val() == '') {alert('Alamat Harus Diisi'); $('#txtAddressNew').focus();}
+          else if ($('#txtProvinceNew').val() == 0) {alert('Provinsi Harus Diisi'); $('#txtProvinceNew').focus();}
+          else if ($('#txtCityNew').val() == 0) {alert('City Harus Diisi'); $('#txtCityNew').focus();}
+          else if ($('#txtPhoneNew').val() == '') {alert('Phone Harus Diisi'); $('#txtPhoneNew').focus();}
+      //    else if ($('#txtNoKTPNew').val() == '' && $('#txtNoNPWPNew').val() == ''){alert('No KTP / NPWP Harus Diisi Salah 1');}
+          else if ($('#txtNoKTPNew').val() != '' && document.getElementById("fotoKTP").files.length == 0 ){alert('Foto KTP Harus Di Upload'); $('#fotoKTP').focus();}
+          else if ($('#txtNoNPWPNew').val() != '' && document.getElementById("fotoNPWP").files.length == 0 ){alert('Foto NPWP Harus Di Upload'); $('#fotoNPWP').focus();}
+          else if ($('#txtNoKTPNew').val() == '' && document.getElementById("fotoKTP").files.length != 0 ){alert('KTP Harus Di Isi'); $('#txtNoKTPNew').focus();}
+          else if ($('#txtNoNPWPNew').val() == '' && document.getElementById("fotoNPWP").files.length != 0 ){alert('NPWP Harus Di Isi'); $('#txtNoNPWPNew').focus();}
+          //else if ($('#txtPosCodeNew').val() == '') {alert('PosCode Harus Diisi'); $('#txtPosCodeNew').focus();}  
+            else if ($('#txtWarehouseAddressNew').val()== '') {alert('Warehouse Alamat Harus Diisi'); $('#txtWarehouseAddressNew').focus();}
+          else if ($('#txtWarehouseProvinceNew').val()== 0) {alert('Warehouse Provinsi Harus Diisi'); $('#txtWarehouseProvinceNew').focus();}
+          else if ($('#txtWarehouseCityNew').val()== 0) {alert('Warehouse City Harus Diisi'); $('#txtWarehouseCityNew').focus();}
+          else if ($('#txtWarehousePhoneNew').val()== '') {alert('Warehouse Phone Harus Diisi'); $('#txtWarehousePhoneNew').focus();}
+          //else if ($('#txtWarehousePosCodeNew').val()== '') {alert('Warehouse Pos Code Harus Diisi'); $('#txtWarehousePosCodeNew').focus();}
+          else if ($('#lblCanSale').html()== 0) {alert('Anda Tidak Boleh Melakukan Transaksi'); $('#txtSalesID').focus();}
+          else{sumbitDetailItem(); loadTable(); refreshBtn();}
+       }else if($("#cusnew").prop('checked') == false && $("#warehousenew").prop('checked') == true) {
+            if ($('#txtWarehouseAddressNew').val()== '') {alert('Warehouse Alamat Harus Diisi'); $('#txtWarehouseAddressNew').focus();}
+          else if ($('#txtWarehouseProvinceNew').val()== 0) {alert('Warehouse Provinsi Harus Diisi'); $('#txtWarehouseProvinceNew').focus();}
+          else if ($('#txtWarehouseCityNew').val()== 0) {alert('Warehouse City Harus Diisi'); $('#txtWarehouseCityNew').focus();}
+          else if ($('#txtWarehousePhoneNew').val()== '') {alert('Warehouse Phone Harus Diisi'); $('#txtWarehousePhoneNew').focus();}
+          //else if ($('#txtWarehousePosCodeNew').val()== '') {alert('Warehouse Pos Code Harus Diisi'); $('#txtWarehousePosCodeNew').focus();}
+      //    else if ($('#txtNoKTP').val() == '' && $('#txtNoNPWP').val() == ''){alert('No KTP / NPWP Harus Diisi Salah 1');}
+          else if ($('#txtNoKTP').val() == '' && document.getElementById("fotoKTP").files.length != 0 ){alert('KTP Harus Di Isi'); $('#txtNoKTP').focus();}
+          else if ($('#txtNoNPWP').val() == '' && document.getElementById("fotoNPWP").files.length != 0 ){alert('NPWP Harus Di Isi'); $('#txtNoNPWP').focus();}
+          else if ($('#lblCanSale').html()== 0) {alert('Anda Tidak Boleh Melakukan Transaksi'); $('#txtSalesID').focus();}
+          else{cekFotoNgikutiNomor();}
+           }else if($("#cusnew").prop('checked') == false && $("#warehousenew").prop('checked') == false) {
+             if ($('#txtCustomerID').val()== 0) {alert('Customer Harus Diisi'); $('#txtCustomerID').focus();}
+             else if ($('#txtWarehouseID').val()== 0) {alert('Warehouse ID Harus Diisi'); $('#txtWarehouseID').focus();}
+             else if ($('#txtWarehouseAddress').val()== '') {alert('Warehouse Alamat Harus Diisi'); $('#txtWarehouseAddress').focus();}
+           else if ($('#txtWarehouseProvince').val()== 0) {alert('Warehouse Provinsi Harus Diisi'); $('#txtWarehouseProvince').focus();}
+           else if ($('#txtWarehouseCity').val()== 0) {alert('Warehouse City Harus Diisi'); $('#txtWarehouseCity').focus();}
+           else if ($('#txtWarehousePhone').val()== '') {alert('Warehouse Phone Harus Diisi'); $('#txtWarehousePhone').focus();}
+           //else if ($('#txtWarehousePosCode').val()== '') {alert('Warehouse Pos Code Diisi'); $('#txtWarehousePosCode').focus();}
+      //     else if ($('#txtNoKTP').val() == '' && $('#txtNoNPWP').val() == ''){alert('No KTP / NPWP Harus Diisi Salah 1');}
+           else if ($('#txtNoKTP').val() == '' && document.getElementById("fotoKTP").files.length != 0 ){alert('KTP Harus Di Isi'); $('#txtNoKTP').focus();}
+           else if ($('#txtNoNPWP').val() == '' && document.getElementById("fotoNPWP").files.length != 0 ){alert('NPWP Harus Di Isi'); $('#txtNoNPWP').focus();}
+           else if ($('#lblCanSale').html()== 0) {alert('Anda Tidak Boleh Melakukan Transaksi'); $('#txtSalesID').focus();}
+             else{cekFotoNgikutiNomor();}
+       }
+
+  }//tutupnya txtItemID  
+  }); //tutupnya submit_detail
+
+
+function cekFotoNgikutiNomor() {
+    if ($('#lblIDNumberIMG').html() != 1){
+        if ($('#txtNoKTP').val() != '' && document.getElementById("fotoKTP").files.length == 0 ){alert('Foto KTP Harus Di Upload'); $('#fotoKTP').focus(); return;}
+    }    
+    if ($('#lblTaxNumberIMG').html() != 1){
+        if ($('#txtNoNPWP').val() != '' && document.getElementById("fotoNPWP").files.length == 0 ){alert('Foto NPWP Harus Di Upload'); $('#fotoNPWP').focus(); return;}        
+    }
+
+    sumbitDetailItem(); loadTable(); refreshBtn();
+}  
+
+function refreshBtn() {
+   $('#Submit_Detail').prop('disabled', false);
+
+   $('#txtItemID').prop('<option value=0 selected>-Pilih-</option>');
+   $('#txtItemID').val(0).selectmenu('refresh',true);
+
+   $('#txtItemName').val(''); 
+   $('#txtQty').val(0);
+}
+
+
+function paramDetailItem(QtyorBns,DiscountText){ 
+              
+                        var itemID = $('#txtItemID').val();
+                        var itemName = $('#txtItemName').val();
+                        
+                        var NilaiYangDiDiskon = $('#txtPrice').val();
+                        var StrDiskon = DiscountText;
+                                    
+              
+                    var hasil = GUValidStrDiskon(NilaiYangDiDiskon,StrDiskon);
+
+                         //return value hasil adalah hasil['NilaiDiskon'];
+                                         // console.log(hasil);
+                                        
+                                         //jika hasilnya NaN maka diubah jd 0 
+                                        if (isNaN(hasil['NilaiDiskon'])) hasil['NilaiDiskon'] = 0;
+
+                          var subtotalHitung = '';
+                        if ($('#OnFaktur').val()=='true'){
+                       subtotalHitung = parseFloat(QtyorBns) * (parseFloat($('#txtPrice').val()) - parseFloat(hasil['NilaiDiskon']));
+
+                                }else if ($('#OnFaktur').val()=='false') {
+                       subtotalHitung = parseFloat(QtyorBns) * parseFloat($('#txtPrice').val());
+                                                   
+                     }
+                          
+                       DiscountAmount = parseFloat(hasil['NilaiDiskon']); 
+
+                     //  console.log(subtotalHitung);
+                                         //  console.log(DiscountAmount);
+                                     
+                      data.push({
+                        itemID: itemID,
+                        itemName: itemName,
+                        qty: QtyorBns,
+                        unit: $('#txtUnit').val(),
+                        price: $('#txtPrice').val(),
+                        shippingweight: $('#txtShippingWeight').val(),                        
+                        discounttext: DiscountText,
+                        discountamount: DiscountAmount,
+                          offfakturtext: DiscountText,
+                        offfakturamount: DiscountAmount,
+                        subtotal: subtotalHitung,
+                       });
+                        
+
+}
+
+function sumbitDetailItem(){
+  if ($("#cusnew").prop('checked') == false && $('#lblPaymentTypec').html()==0 && $('#txtPaymentType').val()!= 0) {
+           alert('Maaf Jika PaymentType Sudah CBD Tidak Bisa di Ganti ke TOP/COD, Harus CBD'); 
+           $('#txtPaymentType').focus();
+     }else{   
+
+       $('#Submit_Detail').prop('disabled', true);
+       
+       $('#txtPaymentType').prop('disabled', true); //memastikan klo ketika masukan 1 item saja paymenttype dan discount terkunci
+       $('#txtTerm').prop('disabled', true);
+       $('#txtDiscount').prop('disabled', true);  //memastikan klo ketika masukan 1 item saja paymenttype dan discount terkunci
+
+       $('#txtPaymentTypeNew').prop('disabled', true);
+       $('#txtTermNew').prop('disabled', true);
+       $('#txtDiscountNew').prop('disabled', true);
+
+       $('#txtNoKTP').prop('disabled', true);
+       $('#txtNoKTPNew').prop('disabled', true);
+         $('#txtNoNPWP').prop('disabled', true);
+       $('#txtNoNPWPNew').prop('disabled', true);
+             $('#fotoKTP').prop('disabled', true);
+       $('#fotoNPWP').prop('disabled', true);
+           
+       $('#cusnew').prop('disabled', true);
+       $('#txtCustomerID').selectmenu('disable'); //karena pakai data-native = false disabled nya dg syntac ini
+      
+       $('#txtSalesID').selectmenu('disable');
+
+       $('#warehousenew').prop('disabled', true);
+       $('#txtWarehouseID').prop('disabled', true);
+            
+             $("#btnCopyAddress").prop('disabled', true);
+
+         $('#txtCustomerNameNew').prop('disabled', true);
+       $('#txtAddressNew').prop('disabled', true);
+       $('#txtProvinceNew').prop('disabled', true);
+       $('#txtCityNew').prop('disabled', true);
+       $('#txtPhoneNew').prop('disabled', true);
+       $('#txtPosCodeNew').prop('disabled', true);
+       $('#txtWarehouseAddressNew').prop('disabled', true);
+       $('#txtWarehouseProvinceNew').prop('disabled', true);
+       $('#txtWarehouseCityNew').prop('disabled', true);
+       $('#txtWarehousePhoneNew').prop('disabled', true);
+       $('#txtWarehousePosCodeNew').prop('disabled', true);
+      
+                            var DiscountText = ''; //untuk merefresh nilai kembali kosong
+        
+          if ($("#cbFree").prop('checked')) {
+                     DiscountText = '100%';
+                         }else{
+                              if ($("#cusnew").prop('checked')) {
+                                    //cusnew
+                                      if ($('#lblDiscountRegular').html() == 15) { //bonus kiloan 15% 
+                                             /********************************************************/
+                                          if ($('#lblItemID').html() == 5665 || $('#lblItemID').html() == 5814){  //5665 acne peel, 5814 melano peel
+
+                                            if ($("#txtPaymentTypeNew").val()==0 && $("#txtQty").val()>=5){          
+                                   DiscountText='15+2.5'; 
+                               }else if ($("#txtPaymentTypeNew").val()==0){
+                             DiscountText='2.5%'; 
+                         }else if ($("#txtQty").val()>=5){
+                             DiscountText='15%';  
+                         }else{
+                                   DiscountText='';
+                          }
+                                          }else if ($("#txtPaymentTypeNew").val()==0){          
+                                   DiscountText='15+2.5';   
+                         }else{
+                                   DiscountText = '15%';
+                      }
+
+                     }else if ($('#lblDiscountRegular').html() == 10) { //bonus kiloan 10% 
+                                              /********************************************************/
+                                          if ($("#txtPaymentTypeNew").val()==0){          
+                                   DiscountText='10+2.5';   
+                         }else{
+                                   DiscountText = '10%';
+                      }   
+
+                                       }else if($('#lblDiscountRegular').html() == 0){
+                                            /********************************************************/
+                          if ($("#txtPaymentTypeNew").val()==0 && $("#txtQty").val()>=10){          
+                                   DiscountText='10+2.5'; 
+                               }else if ($("#txtPaymentTypeNew").val()==0){
+                             DiscountText='2.5%'; 
+                         }else if ($("#txtQty").val()>=10){
+                             DiscountText='10%';  
+                         }else{
+                                   DiscountText='';
+                      }
+
+                    } 
+
+                  }else{
+                                      //cusold
+                                        if ($('#lblDiscountRegular').html() == 15) { //bonus kiloan 15% 
+                                             /********************************************************/
+                                          if ($('#lblItemID').html() == 5665 || $('#lblItemID').html() == 5814){ //5665 acne peel, 5814 melano peel
+
+                                            if ($("#txtPaymentType").val()==0 && $("#txtQty").val()>=5){          
+                                   DiscountText='15+2.5'; 
+                               }else if ($("#txtPaymentType").val()==0){
+                             DiscountText='2.5%'; 
+                         }else if ($("#txtQty").val()>=5){
+                             DiscountText='15%';  
+                         }else{
+                                   DiscountText='';
+                          }
+                                          }else if ($("#txtPaymentType").val()==0){          
+                                   DiscountText='15+2.5';   
+                         }else{
+                                   DiscountText = '15%';
+                      }
+
+                     }else if ($('#lblDiscountRegular').html() == 10) { //bonus kiloan 10% 
+                                              /********************************************************/
+                                          if ($("#txtPaymentType").val()==0){          
+                                   DiscountText='10+2.5';   
+                         }else{
+                                   DiscountText = '10%';
+                      } 
+  
+                                         }else if($('#lblDiscountRegular').html() == 0){
+                            /********************************************************/    
+                        if ($("#txtPaymentType").val()==0 && $("#txtQty").val()>=10){          
+                                 DiscountText='10+2.5'; 
+                             }else if ($("#txtPaymentType").val()==0){
+                           DiscountText='2.5%'; 
+                         }else if ($("#txtQty").val()>=10){
+                           DiscountText='10%';  
+                         }else{
+                                 DiscountText='';
+                      }
+                    } 
+
+
+                  } // tutupnya #cusnew
+
+          } // tutupnya #cbFree
+               
+
+                    var flag_kembar = false;
+
+                    for(var j = 0; j < data.length; j++) {
+              if(data[j].itemID == $('#txtItemID').val() && flag_kembar == false) {
+                  alert('Data Sudah Pernah di Masukkan');
+                   flag_kembar = true;
+              }
+          }
+              
+          if (flag_kembar == false) {
+                            var QtyorBns = $("#txtQty").val(); 
+                 paramDetailItem(QtyorBns,DiscountText);
+              } 
+
+  } //tutupnya if CBD                
+                           
+} //tutupnya function sumbitDetailItem  
+              
+    
+function loadTable(){               
+          var tableContent = []
+          var sum = 0;
+          var itemWeightTotal = 0;
+          var sumOffFakturAmount = 0;
+           
+            //untuk mengkosongkan data sebelum looping kalau tidak ada ini maka jika datanya 1 masih tetep nyantol tampil
+                 $('#example tbody').html('');  
+                 $("#lblDPPs").html('');
+             $("#lblTaxs").html('');
+             $("#lblInvTotals").html('');
+               $("#lblOffFakturAmounts").html('');
+             $("#lblOffFakturPercents").html('');
+             $("#lblItemWeightTotals").html('');
+                       
+                    //variable ini untuk di tampilkan di pojok kanan bawah
+             $("#lblDPP").html('');
+             $("#lblTax").html('');
+             $("#lblInvTotal").html('');
+
+             $("#lblShippings").html('');
+                   $("#lblShippingTotals").html('');
+               $("#lblDeliveryCosts").html(''); 
+             $("#lblDeliveryWeights").html('');
+                   $("#lblGrandTotals").html('');
+                   $("#lblRoundeds").html('');
+
+                     $("#lblDeliveryWeight").html('');
+                     $("#lblDeliveryCost").html('');
+               $("#lblGrandTotal").html(''); 
+          
+
+          for (var a = 0; a < data.length; a++){
+            tableContent.push([
+            '<tr>',
+                '<td style ="display:none">'+(a+1)+'</td>',
+              '<td style ="display:none">'+data[a].itemID+'</td>',
+            '<td>'+data[a].itemName+'</td>',
+                '<td style ="text-align:right">'+myintval(parseInt(data[a].qty))+'</td>',
+                '<td style ="display:none">'+data[a].unit+'</td>',
+            '<td style ="text-align:right">'+myintval(parseFloat(data[a].price))+'</td>',
+               ($('#OnFaktur').val()=='true' ? '<td style ="text-align:right">'+data[a].discounttext+'</td>' : '<td style ="text-align:right">'+data[a].offfakturtext+'</td>'),
+             ($('#OnFaktur').val()=='true' ? '<td style ="display:none">'+myintval(parseFloat(data[a].discountamount))+'</td>' : '<td style ="display:none">'+myintval(parseFloat(data[a].offfakturamount))+'</td>'),
+            '<td style ="text-align:right">'+myintval(parseFloat(data[a].subtotal))+'</td>',
+            '<td>'+'<a href="'+data.indexOf(data[a])+'" id="del" class="ui-btn ui-icon-delete ui-btn-icon-notext ui-corner-all">Remove</a>'+'</td>',
+                '</tr>',
+             ].join(''));
+           
+            sum = parseFloat(sum) + parseFloat(data[a].subtotal);
+            itemWeightTotal = parseFloat(itemWeightTotal) + (parseFloat(data[a].shippingweight) * parseFloat(data[a].qty));
+          
+            if ($('#OffFaktur').val()=='true') {
+              sumOffFakturAmount = parseFloat(sumOffFakturAmount) + (parseFloat(data[a].offfakturamount) * parseFloat(data[a].qty) * 1.1);
+             }else{ /*jika On faktur*/
+              sumOffFakturAmount = 0;
+            }
+                     
+
+           if (tableContent.length) $('#example tbody').html(tableContent);
+             var tax = parseFloat(sum) * parseFloat(10/100);
+             var invTotal = parseFloat(sum) + parseFloat(tax);
+             var OffFakturPercent = parseFloat(parseFloat(sumOffFakturAmount) / parseFloat(invTotal)) * 100;
+          
+          
+            //variable ini untuk di save ke database
+             $("#lblDPPs").html(round(parseFloat(sum),2));
+             $("#lblTaxs").html(round(parseFloat(tax),2));
+             $("#lblInvTotals").html(round(parseFloat(invTotal),2));
+             $("#lblOffFakturAmounts").html(round(parseFloat(sumOffFakturAmount),0));
+             $("#lblOffFakturPercents").html(parseFloat(OffFakturPercent));
+             $("#lblItemWeightTotals").html(parseFloat(itemWeightTotal));
+                   
+                        //variable ini untuk di tampilkan di pojok kanan bawah
+             $("#lblDPP").html(myintval(parseFloat(sum)));
+             $("#lblTax").html(myintval(parseFloat(tax)));
+             $("#lblInvTotal").html(myintval(parseFloat(invTotal)));
+             
+          }
+                      
+                       cekKG(itemWeightTotal);
+       
+}
+
+function cekKG(itemWeightTotal){
+             var vKg = 0;
+             var a = 0;
+             var b = 0;
+             var shipping = 0;
+             var shippingTotal = 0;
+             var subsidy = 0;
+
+       if (itemWeightTotal < 1000) {
+                vKg = 1;                  
+       }else{
+                a = parseInt(itemWeightTotal / 1000)
+                b = parseInt(itemWeightTotal % 1000)
+                 
+                 if (b >= 400) {
+                   vKg = a + 1;
+                 }else{
+                   vKg = a; 
+                 }
+       }
+             
+
+             shipping = parseFloat($('#txtOngkir').val().trim());
+         shippingTotal = parseFloat(shipping) * parseFloat(vKg);
+        
+          if (parseFloat($("#lblInvTotals").html()) >= parseFloat($("#txtFreeDeliveryCost").val())) {
+                      subsidy = (parseFloat(shipping) - 35000) * parseFloat(vKg); 
+                      console.log(subsidy);
+                       if (parseFloat(subsidy) <= 0) {
+                          subsidy = 0;  
+                       }
+                      var deliveryCost = subsidy; 
+               
+           }else{
+                    var deliveryCost = shippingTotal; 
+          }
+      
+      var grandTotal = parseFloat($("#lblInvTotals").html()) + parseFloat(deliveryCost);  
+            
+            var vGTasli = grandTotal;
+            var vGTrouded = roundUporDownToHundred(vGTasli);
+            var vRounded = vGTrouded-vGTasli;
+
+            //variable ini untuk di save ke database    
+            $("#lblShippings").html(round(parseFloat(shipping),2));
+            $("#lblShippingTotals").html(round(parseFloat(shippingTotal),2));
+        $("#lblDeliveryCosts").html(round(parseFloat(deliveryCost),2)); 
+      $("#lblDeliveryWeights").html(parseFloat(vKg));
+            $("#lblGrandTotals").html(parseFloat(vGTrouded));
+            $("#lblRoundeds").html(round(vRounded,2));
+
+
+            $("#lblDeliveryWeight").html(myintval(parseFloat(vKg)));
+            $("#lblDeliveryCost").html(myintval(parseFloat(deliveryCost)));
+      $("#lblGrandTotal").html(myintval(parseFloat(vGTrouded)));  
+
+}
+
+                  
+       
+}); //tutupnya 'Document Ready Function'
+
+</script>
+
+
+<style>
+
+/*.ui-checkbox, #cusnew, #warehousenew {
+    width: 75px !important;
+}
+*/
+
+/*.ui-select, #txtItemID, #txtItemID option {
+    width: 250px !important;
+    /*font-size: 0.5em!important;*/
+/*
+}
+*/
+.ui-page { background: #F6F6F6;}
+
+.textfield {
+        background-color:#FF9;
+        border-radius: 20px;
+        color:#000;
+}
+</style>
+
+      <div data-role="navbar" class="navbar-inverse">
+       <ul>
+          <li><a href="<?php echo base_url() ?>index.php/admin/c_dashboard" target="" data-icon="home">Menu</a></li>
+        <li><a onClick="javascript:history.go(0)" data-icon="refresh">Refresh</a></li>
+       </ul>
+    </div>
+
+<h2 align="center"><strong>Input Sales Order Regular</strong></h2>
+
+<div data-role="main" class="ui-content">
+ <div class="panel panel-default">
+  <div class="panel-heading"><b>Customer</b></div>
+   <div class="panel-body">
+  <!--/************************************/-->
+  <div class="ui-grid-a">
+   <div class="ui-block-a">
+    <label for="txtNumber">Number</label>
+      <input type="text"  id="txtNumber" placeholder="(*Tidak Perlu Diisi)" style="background-color:#FFFFCC"  readonly />
+    </div>
+    <div class="ui-block-b">  
+    <label for="txtDate">Date</label>
+      <input type="text" id="txtDate" class="date-input-css" value="<?php echo date('d/m/Y'); ?>" style="z-index:101; position:relative; background-color:#FFFFCC"  readonly />
+    </div>
+   </div>  
+
+
+  <div class="ui-grid-c">
+    <div class="ui-block-a">
+         <label for=""></label>
+           <label for="txtCustomerID">Customer</label>
+    </div>
+    <div class="ui-block-b">  
+      <fieldset data-role="controlgroup" data-mini="true">
+     <label for="cusnew">New</label>
+      <input type="checkbox" id="cusnew" value="CusNew">
+    </fieldset>
+    </div>
+   </div> 
+
+       <div id="txtCustomerIDx">
+          <select id="txtCustomerID" data-native-menu="false" data-mini="true" >
+         <option value=0 selected>-Pilih-</option>
+          <?php $no=1; foreach($data as $list) 
+           { 
+            echo "<option value='".$list['id']."'>".$list['cust']."</option>";
+           } 
+             ?>
+        </select>
+          <input type="hidden" id="txtCustomerName" /> <!--textbox ini sebagai tampungan nama customer jika customer pilih dari combo-->
+       </div>
+      <div id="txtCustomerNameNewx">
+            <input type="text" id="txtCustomerNameNew" /> <!--textbox ini muncul ketika pilih opsi customer new-->
+      </div>   
+      <input type="hidden" id="txtUserID"  value="<?php echo $this->session->userdata('userID'); ?>"/>
+        <!--<input type="hidden" id="txtSalesName"  value="<?php //echo $this->session->userdata('userName'); ?>" />-->
+        <div id="lblCanSale" style="display:none"></div>
+            <div id="txtUserIP" style="display:none"></div>
+
+      <!--atribut tambahan dari mCustomer tidak usah ditampilkan-->
+      <div id="lblCustomerCode" style="display:none"></div>
+      <div id="lblTaxNumber" style="display:none"></div>
+      <div id="lblUp" style="display:none"></div>
+      <div id="lblIDNumberIMG" style="display:none"></div>
+      <div id="lblTaxNumberIMG" style="display:none"></div>  
+      <!-- --> 
+
+      <!--atribut tambahan dari mItem tidak usah ditampilkan-->
+      <div id="lblDiscountRegular" style="display:none"></div>
+      <div id="lblItemID" style="display:none"></div>
+      <div id="lblQty" style="display:none"></div>
+      <!-- --> 
+
+   </div>
+  </div>
+ </div>
+
+
+<div data-role="main" class="ui-content">
+  <div class="panel panel-default">
+   <div class="panel-heading"><b>Bill To (Alamat Asal)</b></div>
+    <div class="panel-body">
+         <label for="textarea">Address</label>
+       <textarea id="txtAddressNew"></textarea>
+       <textarea id="txtAddress" disabled="disabled"></textarea>
+     <label for="txtProvinceNew">Provinsi</label>
+      <div id="txtProvinceNewx">
+        <select id="txtProvinceNew" data-mini="true">
+         <option value=0 selected>-Pilih-</option>
+               <?php $no=1; foreach($data3 as $list) 
+           { 
+            echo "<option value='".$list['Province']."'>".$list['Province']."</option>";
+           } 
+           ?>
+          </select>
+      </div>  
+       <div id="txtProvincex">
+         <input type="text" id="txtProvince" disabled="disabled" />
+         </div>
+      <label for="txtCityNew">City</label>
+       <div id="txtCityNewx">
+          <select id="txtCityNew" data-mini="true">
+         <option value=0 selected>-Pilih-</option>
+        </select>
+       </div>   
+       <div id="txtCityx">
+         <input type="text" id="txtCity" disabled="disabled" />
+       </div>
+      <div class="ui-grid-a">
+       <div class="ui-block-a">
+          <label for="txtPhonex">Phone</label>
+           <div id="txtPhonex">
+           <input id="txtPhone" type="tel" disabled="disabled"/>
+             </div>
+             <div id="txtPhoneNewx">  
+               <input id="txtPhoneNew" type="tel" />
+             </div>  
+        </div>
+        <div class="ui-block-b">  
+        <label for="txtPosCode">Pos Code (opsional)</label> 
+            <div id="txtPosCodex"> 
+             <input id="txtPosCode" type="tel" disabled="disabled"/>
+            </div>
+            <div id="txtPosCodeNewx"> 
+             <input id="txtPosCodeNew" type="tel" />
+            </div> 
+        </div>
+      </div>  
+
+   </div>
+  </div>
+ </div>
+
+
+<div data-role="main" class="ui-content">
+  <div class="panel panel-default">
+   <div class="panel-heading"><b>Nomor & Upload Foto (*Boleh Kosong)</b></div>
+    <div class="panel-body">
+     <div class="ui-grid-a">
+        <div class="ui-block-a">
+          <label for="txtNoKTP">No KTP</label>
+       <div id="txtNoKTPx">
+           <input id="txtNoKTP" type="tel"  />
+         </div>
+         <div id="txtNoKTPNewx">
+           <input id="txtNoKTPNew" type="tel" />
+         </div>
+      </div>
+      <div class="ui-block-b">  
+        <label for="txtNoNPWP">No NPWP</label>
+       <div id="txtNoNPWPx">
+           <input id="txtNoNPWP" type="tel"  />
+         </div>
+         <div id="txtNoNPWPNewx">
+           <input id="txtNoNPWPNew" type="tel"  />
+         </div>
+      </div>  
+     </div>
+        <div class="ui-grid-a">
+          <div class="ui-block-a">  
+          
+          <div id="fotoKTPSudahUploadx">   
+             <p>Foto Sudah Di Upload</p>       
+          </div>
+
+          <div id="fotoKTPx">   
+             <input name='fotoKTP' type='file' id='fotoKTP'>       
+          </div>
+        </div>
+        <div class="ui-block-b">  
+           
+          <div id="fotoNPWPSudahUploadx">   
+             <p>Foto Sudah Di Upload</p>       
+          </div>
+
+             <div id="fotoNPWPx"> 
+              <input name='fotoNPWP' type='file' id='fotoNPWP'>      
+           </div>
+        </div>   
+        </div>
+   </div>
+  </div>
+ </div>
+
+ <div data-role="main" class="ui-content">
+  <div class="panel panel-default">
+   <div class="panel-heading"><b>Payment & Discount</b></div>
+    <div class="panel-body">
+            
+            <div class="ui-grid-a">
+        <div class="ui-block-a">
+           <label for="txtPaymentType">Payment</label>
+              <div id="txtPaymentTypex">
+                 <select id="txtPaymentType" data-mini="true">  
+             </select>
+              <div id="lblPaymentTypec" style="display:none"></div>
+             </div>
+              <div id="txtPaymentTypeNewx">
+                <select id="txtPaymentTypeNew" data-mini="true">
+                       <option value=0 selected>CBD</option>
+                     <!--<option value=1>COD</option>-->
+                       <option value=2>TOP</option>
+              </select>
+           </div> 
+               </div>
+
+        <div class="ui-block-b">
+          <label for="txtTerm">Term</label>   
+            <div id="txtTermx">   
+              <input id="txtTerm" type="tel" style="background-color:#FFFFCC" onkeyup="if (/\D/g.test(this.value)) this.value = this.value.replace(/\D/g,'')"/>
+            </div> 
+            <div id="txtTermNewx">   
+              <input id="txtTermNew" type="tel" style="background-color:#FFFFCC" onkeyup="if (/\D/g.test(this.value)) this.value = this.value.replace(/\D/g,'')" />
+            </div>   
+        </div>
+        </div>
+          
+         <label for="txtDiscountNew">Discount</span></label>  
+         <div id="txtDiscountNewx"> 
+          <select id="txtDiscountNew" data-mini="true">
+              <option value="0" selected>ON Faktur</option>
+            <option value="1">OFF Faktur</option>
+          </select>
+         </div>
+            <div id="txtDiscountx"> 
+            <input type="text" id="txtDiscount" disabled="disabled" />
+          </div>      
+        
+    </div>
+  </div>
+ </div>
+
+
+<div data-role="main" class="ui-content">
+  <div class="panel panel-default">
+    <div class="panel-body">
+        <label for="txtSalesID">Sales</label>
+     <div id="txtSalesIDx">
+      <select id="txtSalesID" data-mini="true" >
+        <?php $no=1; foreach($data4 as $list) { ?> 
+             <option value="<?php echo $list['id'];?>" <?php echo ($no==  1) ? ' selected="selected"' : '';?>><?php echo $list['sales'];?></option>  
+         <?php $no++; } ?>
+        </select>
+        </div>
+   </div>
+  </div>
+ </div>
+
+
+<div data-role="main" class="ui-content">
+  <div class="panel panel-default">
+   <div class="panel-heading"><b>Ship To (Alamat Kirim)</b></div>
+    <div class="panel-body">
+
+    <div class="ui-grid-b">
+    <div class="ui-block-a">
+         <label for=""></label>
+           <label for="txtWarehouseID">Ship To</label>  
+    </div>
+    <div class="ui-block-b">  
+      <fieldset data-role="controlgroup" data-mini="true">
+      <label for="warehousenew">New</label>
+       <input type="checkbox" id="warehousenew" value="warehousenew">
+      </fieldset>
+    </div>
+   </div> 
+         
+         <div id="btnCopyAddressx">
+           <input type="button" id="btnCopyAddress" value="Copy Address" data-mini="true">
+         </div>
+        
+      <div id="txtWarehouseIDx">
+        <select id="txtWarehouseID" data-mini="true">
+         <option value=0 selected>-Pilih-</option>
+          </select>
+      </div>  
+         <label for="textarea">Address</label>
+       <textarea id="txtWarehouseAddressNew"></textarea>
+       <textarea id="txtWarehouseAddress" disabled="disabled"></textarea>
+     <label for="txtWarehouseProvinceNew">Provinsi</label>
+      <div id="txtWarehouseProvinceNewx">
+        <select id="txtWarehouseProvinceNew"  data-mini="true">
+         <option value=0 selected>-Pilih-</option>
+               <?php $no=1; foreach($data3 as $list) 
+           { 
+            echo "<option value='".$list['Province']."'>".$list['Province']."</option>";
+           } 
+           ?>
+          </select>
+      </div>  
+       <div id="txtWarehouseProvincex">
+         <input type="text" id="txtWarehouseProvince" disabled="disabled" />
+         </div>
+        <label for="txtWarehouseCityNew">City</label>
+       <div id="txtWarehouseCityNewx">
+          <select id="txtWarehouseCityNew" data-mini="true">
+         <option value=0 selected>-Pilih-</option>
+        </select>
+       </div>
+       <div id="txtWarehouseCityx">     
+         <input type="text" id="txtWarehouseCity" disabled="disabled" />   
+             </div>
+            <div class="ui-grid-a">
+       <div class="ui-block-a">
+        <label for="txtWarehousePhone">Phone</label>
+          <div id="txtWarehousePhonex"> 
+            <input id="txtWarehousePhone" type="tel" disabled="disabled"/>
+          </div>
+          <div id="txtWarehousePhoneNewx">  
+            <input id="txtWarehousePhoneNew" type="tel" />
+          </div>      
+       </div>
+        <div class="ui-block-b">  
+         <label for="txtWarehousePosCode">Pos Code (opsional)</label>
+         <div id="txtWarehousePosCodex">
+             <input id="txtWarehousePosCode" type="tel" disabled="disabled"/>
+           </div>
+           <div id="txtWarehousePosCodeNewx">   
+             <input id="txtWarehousePosCodeNew" type="tel" />
+           </div>   
+        </div>
+      </div>  
+
+   </div>
+  </div>
+ </div>
+
+<div data-role="main" class="ui-content">
+  <div class="panel panel-default">
+   <div class="panel-heading" style="background-color:#EAFBF3"><b>Detail Item</b></div>  <!--style="background-color:#FFCC66"-->
+    <div class="panel-body">  <!--style="background-color:#FFFFCC"-->
+        <label for="txtItemID">Item</label>
+           <select id="txtItemID" data-native-menu="false" data-mini="true">
+         <option value=0 selected>-Pilih-</option>
+         </select>
+      <input type="hidden" id="txtItemName"  class="form-control"  />
+      <input type="hidden" id="txtUnit"  class="form-control"  />
+
+      <div class="ui-grid-a">
+       <div class="ui-block-a">
+           <label for="txtQty">Qty</label>    
+              <input type="tel" data-role="spinbox" id="txtQty" data-options='{"type":"horizontal"}' value="0" min="0" max="10000" data-mini="true" onkeyup="if (/\D/g.test(this.value)) this.value = this.value.replace(/\D/g,'')"/>
+        </div>
+        <div class="ui-block-b"> 
+           <!-- Tombol Free sementara tidak digunakan 
+              <label for="">&nbsp;</label>  
+              <div id="cbFreex">
+                 <label for="cbFree">Free</label>
+                   <input type="checkbox" id="cbFree" value="Free" data-mini="true">
+                </div>
+              -->  
+        </div>
+       </div>  
+                
+        <input type="hidden" id="txtPrice" style="background-color:yellow"  readonly  />
+        <input type="hidden" id="txtSubTotal" style="background-color:yellow"  readonly />
+        <input type="hidden" id="txtShippingWeight" style="background-color:yellow"  readonly />
+ 
+
+  <div class="panel-body">
+       <button id="Submit_Detail" class="ui-btn ui-shadow ui-corner-all ui-btn-icon-left ui-icon-shop" style="background-color:#ACC31A">Masukkan Item</button>
+  </div>
+ 
+     <input id="txtFreeDeliveryCost" type="hidden" style="background-color:#FFFFCC"  readonly />
+   <input id="txtOngkir" type="hidden" style="background-color:#FFFFCC"  readonly />
+  
+
+<table id="example" class="display nowrap" cellspacing="0" width="100%" >
+     <thead>
+       <tr>
+       <th style ="display:none">No</th>
+       <th style ="display:none">Item ID</th>
+       <th style="background-color:#EAFBF3"><font color="#333333">Name</font></th>
+         <th style="background-color:#EAFBF3"><font color="#333333">Qty</font></th>
+         <th style ="display:none">Unit</th>
+       <th style="background-color:#EAFBF3"><font color="#333333">Price</font></th>
+       <th id="OnFaktur" style="background-color:#EAFBF3"><font color="#333333">Disc On</font></th>
+       <th id="OffFaktur" style="background-color:#EAFBF3"><font color="#333333">Disc Off</font></th>
+       <th style="display:none"><font color="#333333">Discount Amount</font></th>
+       <th style="background-color:#EAFBF3"><font color="#333333">Sub Total</font></th>
+       <th style="background-color:#EAFBF3"><font color="#333333"></font></th>
+       </tr>
+    </thead>
+   <tbody></tbody>
+ </table>
+
+ 
+<td><div style="font-size:100%;">Biaya Ongkir Per Kg ke :<div id="lblShipCity"></div><div id="lblOngkir" style="color:red"></div>x<div id="lblDeliveryWeight" style="color:red"></div>kg</div></td>
+<table align="right">
+      <tr> 
+     <td colspan="7">DPP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+      <td><div id="lblDPP" style="background-color:#FFFFCC;text-align:right"></div>
+          <div id="lblDPPs" style="display:none"></div>
+      </td>
+   </tr>
+   <tr> 
+     <td colspan="7">Tax&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+     <td><div id="lblTax" style="background-color:#FFFFCC;text-align:right"></div>
+         <div id="lblTaxs" style="display:none"></div>
+     </td>
+   </tr>
+       <tr> 
+     <td colspan="7">Inv Total&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+     <td><div id="lblInvTotal" style="background-color:#FFFFCC;text-align:right"></div>
+         <div id="lblInvTotals" style="display:none"></div>
+     </td>
+   </tr>
+   <tr> 
+     <td colspan="7">Shipping&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+      <td><div id="lblDeliveryCost" style="background-color:#FFFFCC;text-align:right"></div>
+          <div id="lblDeliveryCosts" style="display:none"></div>
+      </td>
+   </tr>
+   <tr> 
+     <td colspan="7">Grand Total&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+     <td><div id="lblGrandTotal" style="background-color:#FFFFCC;color:red;font-weight:bold;text-align:right"></div>
+         <div id="lblGrandTotals" style="display:none"></div>
+         <div id="lblRoundeds" style="display:none"></div>
+         <div id="lblOffFakturAmounts" style="display:none"></div>
+         <div id="lblOffFakturPercents" style="display:none"></div>
+         
+         <div id="lblDeliveryWeights" style="display:none"></div><!--KG-->
+         <div id="lblItemWeightTotals" style="display:none"></div><!--G-->
+         <div id="lblShippings" style="display:none"></div><!--tarif per KG-->
+         <div id="lblShippingTotals" style="display:none"></div><!--total tarif-->
+     </td>
+   </tr>
+</table>
+  <table align="left">  
+     <tr>
+     <td colspan="10"><div style="font-size:80%;">*Grand Total Ini Sudah Auto Rounded</div></td>
+     </tr>
+   <tr>
+     <td><div style="color:red;font-size:80%;text-align:left">*Harga ongkir dan free ongkir (Shipping) berlaku pada pengiriman kurir Indah Jaya, 
+selain kurir ini ada selisih ongkir Grand Total belum Fix harap menghubungi Sales Admin</div></td>
+   </tr>
+   </table>
+
+  </div>
+</div>   
+    
+    <textarea id="txtInternalNotes" placeholder="Internal Notes"></textarea>
+
+<div class="panel-body">
+   <button id="Simpan" class="ui-btn ui-shadow ui-corner-all ui-btn-icon-left ui-icon-check" style="background-color:#F37022"><font color="#FFFFFF">Save</font></button>
+</div>
+   
+  </div> <!--panel-body-->
+ </div> <!--panel-heading-->
+</div> <!--panel panel-default-->
